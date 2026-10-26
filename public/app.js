@@ -149,6 +149,6 @@ FIELDS.forEach((k) => $(k).addEventListener("input", () => {
   render();
 }));
 document.querySelectorAll(".preset").forEach((b) => b.addEventListener("click", () => setPreset(b.dataset.preset)));
-window.addEventListener("resize", () => Object.values(charts).forEach((c) => c.resize()));
+window.addEventListener("resize", () => { Object.values(charts).forEach((c) => c.resize()); render(); });
 
 setPreset("tubo");
