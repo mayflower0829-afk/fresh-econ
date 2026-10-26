@@ -3,6 +3,20 @@
    包赔按客单价计提；佣金按客单价费率；保本 = 变动成本合计（固定成本另摊）。 */
 
 const FIELDS = ["price", "weight", "cost", "loss", "pack", "ship", "comp", "fee", "ads", "fixed", "orders"];
+
+const PARAMS_KEY = "freshEcon.params";
+function saveParams() {
+  const p = {};
+  FIELDS.forEach((k) => p[k] = num(k));
+  try { localStorage.setItem(PARAMS_KEY, JSON.stringify(p)); } catch (e) { /* ignore */ }
+}
+function loadParams() {
+  try {
+    const p = JSON.parse(localStorage.getItem(PARAMS_KEY));
+    if (p) FIELDS.forEach((k) => { if (p[k] !== undefined) $(k).value = p[k]; });
+    return true;
+  } catch (e) { return false; }
+}
 const PRESETS = {
   tubo: { label: "土拨购乡橙（5斤装99元）", price: 99, weight: 5, cost: 4.5, loss: 12, pack: 6, ship: 10, comp: 5, fee: 2, ads: 15, fixed: 6000, orders: 30 },
   generic: { label: "通用生鲜（客单50元）", price: 50, weight: 3, cost: 3, loss: 10, pack: 3, ship: 6, comp: 3, fee: 2, ads: 8, fixed: 4000, orders: 20 },
@@ -146,9 +160,13 @@ function toast(m) {
 
 FIELDS.forEach((k) => $(k).addEventListener("input", () => {
   document.querySelectorAll(".preset").forEach((b) => b.classList.remove("active"));
+  saveParams();
   render();
 }));
 document.querySelectorAll(".preset").forEach((b) => b.addEventListener("click", () => setPreset(b.dataset.preset)));
+document.querySelectorAll(".preset").forEach((b) => b.addEventListener("click", () => saveParams()));
 window.addEventListener("resize", () => { Object.values(charts).forEach((c) => c.resize()); render(); });
 
-setPreset("tubo");
+// 恢复上次调好的参数（无保存记录时用默认预设）
+if (!loadParams()) setPreset("tubo");
+else document.querySelectorAll(".preset").forEach((b) => b.classList.remove("active"));
